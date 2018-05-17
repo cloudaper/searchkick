@@ -52,11 +52,11 @@ module Searchkick
           end
           alias_method :search_index, :searchkick_index unless method_defined?(:search_index)
 
-          def searchkick_reindex(method_name = nil, **options)
+          def searchkick_reindex(method_name = nil, method_args = nil, **options)
             scoped = (respond_to?(:current_scope) && respond_to?(:default_scoped) && current_scope && current_scope.to_sql != default_scoped.to_sql) ||
               (respond_to?(:queryable) && queryable != unscoped.with_default_scope)
 
-            searchkick_index.reindex(searchkick_klass, method_name, scoped: scoped, **options)
+            searchkick_index.reindex(searchkick_klass, method_name, method_args, scoped: scoped, **options)
           end
           alias_method :reindex, :searchkick_reindex unless method_defined?(:reindex)
 
@@ -74,8 +74,8 @@ module Searchkick
           after_destroy :reindex, if: -> { Searchkick.callbacks?(default: callbacks) }
         end
 
-        def reindex(method_name = nil, **options)
-          RecordIndexer.new(self).reindex(method_name, **options)
+        def reindex(method_name = nil, method_args = nil, **options)
+          RecordIndexer.new(self).reindex(method_name, method_args, **options)
         end unless method_defined?(:reindex)
 
         def similar(options = {})

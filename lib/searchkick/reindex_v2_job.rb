@@ -9,7 +9,7 @@ module Searchkick
 
     queue_as { Searchkick.queue_name }
 
-    def perform(klass, id, method_name = nil)
+    def perform(klass, id, method_name = nil, method_args = nil)
       model = klass.constantize
       record =
         begin
@@ -30,7 +30,7 @@ module Searchkick
         record.id = id
       end
 
-      RecordIndexer.new(record).reindex(method_name, mode: :inline)
+      RecordIndexer.new(record).reindex(method_name, method_args, mode: :inline)
     end
   end
 end

@@ -45,7 +45,7 @@ module Searchkick
       end
     end
 
-    def update_record(record, method_name)
+    def update_record(record, method_name, method_args = nil)
       event = {
         name: "#{record.searchkick_klass.name} Update",
         id: search_id(record)

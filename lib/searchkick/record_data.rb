@@ -15,9 +15,9 @@ module Searchkick
       {index: data}
     end
 
-    def update_data(method_name)
+    def update_data(method_name, method_args = nil)
       data = record_data
-      data[:data] = {doc: search_data(method_name)}
+      data[:data] = {doc: search_data(method_name, method_args)}
       {update: data}
     end
 
@@ -46,10 +46,10 @@ module Searchkick
       data
     end
 
-    def search_data(method_name = nil)
+    def search_data(method_name = nil, method_args = [])
       partial_reindex = !method_name.nil?
 
-      source = record.send(method_name || :search_data)
+      source = record.send(method_name || :search_data, *method_args)
 
       # conversions
       index.conversions_fields.each do |conversions_field|

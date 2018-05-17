@@ -129,8 +129,8 @@ module Searchkick
       bulk_indexer.bulk_delete([record])
     end
 
-    def update_record(record, method_name)
-      bulk_indexer.bulk_update([record], method_name)
+    def update_record(record, method_name, method_args = nil)
+      bulk_indexer.bulk_update([record], method_name, method_args)
     end
 
     def bulk_delete(records)
@@ -142,8 +142,8 @@ module Searchkick
     end
     alias_method :import, :bulk_index
 
-    def bulk_update(records, method_name)
-      bulk_indexer.bulk_update(records, method_name)
+    def bulk_update(records, method_name, method_args)
+      bulk_indexer.bulk_update(records, method_name, method_args)
     end
 
     def search_id(record)
@@ -177,12 +177,12 @@ module Searchkick
 
     # reindex
 
-    def reindex(relation, method_name, scoped:, full: false, scope: nil, **options)
+    def reindex(relation, method_name, method_args = nil, scoped:, full: false, scope: nil, **options)
       refresh = options.fetch(:refresh, !scoped)
 
       if method_name
         # update
-        import_scope(relation, method_name: method_name, scope: scope)
+        import_scope(relation, method_name: method_name, method_args: method_args, scope: scope, **options)
         self.refresh if refresh
         true
       elsif scoped && !full

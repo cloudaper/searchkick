@@ -7,7 +7,7 @@ module Searchkick
       @index = record.class.searchkick_index
     end
 
-    def reindex(method_name = nil, refresh: false, mode: nil)
+    def reindex(method_name = nil, method_args = nil, refresh: false, mode: nil)
       unless [:inline, true, nil, :async, :queue].include?(mode)
         raise ArgumentError, "Invalid value for mode"
       end
@@ -29,10 +29,11 @@ module Searchkick
         Searchkick::ReindexV2Job.perform_later(
           record.class.name,
           record.id.to_s,
-          method_name ? method_name.to_s : nil
+          method_name ? method_name.to_s : nil,
+          method_args ? method_args : nil
         )
       else # bulk, inline/true/nil
-        reindex_record(method_name)
+        reindex_record(method_name, method_args)
 
         index.refresh if refresh
       end
@@ -40,7 +41,7 @@ module Searchkick
 
     private
 
-    def reindex_record(method_name)
+    def reindex_record(method_name, method_args)
       if record.destroyed? || !record.persisted? || !record.should_index?
         begin
           index.remove(record)
@@ -49,7 +50,7 @@ module Searchkick
         end
       else
         if method_name
-          index.update_record(record, method_name)
+          index.update_record(record, method_name, method_args)
         else
           index.store(record)
         end
