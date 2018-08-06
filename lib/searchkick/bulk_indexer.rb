@@ -153,7 +153,7 @@ module Searchkick
       begin
         yield
       rescue Faraday::ClientError => e
-        if retries < 1
+        if retries < 10
           retries += 1
           retry
         end
